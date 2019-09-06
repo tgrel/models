@@ -38,7 +38,7 @@ class BatchTimestamp(object):
         self.batch_index, self.timestamp)
 
 
-class TimeHistory(tf.keras.callbacks.Callback):
+class TimeHistory(tf.compat.v1.keras.callbacks.Callback):
   """Callback for Keras models."""
 
   def __init__(self, batch_size, log_steps):
@@ -118,7 +118,7 @@ def get_profiler_callback(model_dir, profile_steps, enable_tensorboard):
   return ProfilerCallback(model_dir, start_step, stop_step)
 
 
-class ProfilerCallback(tf.keras.callbacks.Callback):
+class ProfilerCallback(tf.compat.v1.keras.callbacks.Callback):
   """Save profiles in specified step range to log directory."""
 
   def __init__(self, log_dir, start_step, stop_step):
@@ -152,7 +152,7 @@ def set_session_config(enable_eager=False,
       tf.compat.v1.enable_eager_execution(config=config)
     else:
       sess = tf.Session(config=config)
-      tf.keras.backend.set_session(sess)
+      tf.compat.v1.keras.backend.set_session(sess)
 
 
 def get_config_proto_v1(enable_xla=False):

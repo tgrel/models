@@ -59,7 +59,7 @@ def metric_fn(logits, dup_mask, params):
   return in_top_k, metric_weights
 
 
-class MetricLayer(tf.keras.layers.Layer):
+class MetricLayer(tf.compat.v1.keras.layers.Layer):
   """Custom layer of metrics for NCF model."""
 
   def __init__(self, params):
@@ -82,13 +82,13 @@ class MetricLayer(tf.keras.layers.Layer):
     return logits
 
 
-class LossLayer(tf.keras.layers.Layer):
+class LossLayer(tf.compat.v1.keras.layers.Layer):
   """Pass-through loss layer for NCF model."""
 
   def __init__(self, loss_normalization_factor):
     super(LossLayer, self).__init__()
     self.loss_normalization_factor = loss_normalization_factor
-    self.loss = tf.keras.losses.SparseCategoricalCrossentropy(
+    self.loss = tf.compat.v1.keras.losses.SparseCategoricalCrossentropy(
         from_logits=True, reduction="sum")
 
   def call(self, inputs):
@@ -100,7 +100,7 @@ class LossLayer(tf.keras.layers.Layer):
     return logits
 
 
-class IncrementEpochCallback(tf.keras.callbacks.Callback):
+class IncrementEpochCallback(tf.compat.v1.keras.callbacks.Callback):
   """A callback to increase the requested epoch for the data producer.
 
   The reason why we need this is because we can only buffer a limited amount of
@@ -115,7 +115,7 @@ class IncrementEpochCallback(tf.keras.callbacks.Callback):
     self._producer.increment_request_epoch()
 
 
-class CustomEarlyStopping(tf.keras.callbacks.Callback):
+class CustomEarlyStopping(tf.compat.v1.keras.callbacks.Callback):
   """Stop training has reached a desired hit rate."""
 
   def __init__(self, monitor, desired_value):
@@ -149,29 +149,29 @@ def _get_keras_model(params):
   """Constructs and returns the model."""
   batch_size = params["batch_size"]
 
-  user_input = tf.keras.layers.Input(
+  user_input = tf.compat.v1.keras.layers.Input(
       shape=(1,), name=movielens.USER_COLUMN, dtype=tf.int32)
 
-  item_input = tf.keras.layers.Input(
+  item_input = tf.compat.v1.keras.layers.Input(
       shape=(1,), name=movielens.ITEM_COLUMN, dtype=tf.int32)
 
-  valid_pt_mask_input = tf.keras.layers.Input(
+  valid_pt_mask_input = tf.compat.v1.keras.layers.Input(
       shape=(1,), name=rconst.VALID_POINT_MASK, dtype=tf.bool)
 
-  dup_mask_input = tf.keras.layers.Input(
+  dup_mask_input = tf.compat.v1.keras.layers.Input(
       shape=(1,), name=rconst.DUPLICATE_MASK, dtype=tf.int32)
 
-  label_input = tf.keras.layers.Input(
+  label_input = tf.compat.v1.keras.layers.Input(
       shape=(1,), name=rconst.TRAIN_LABEL_KEY, dtype=tf.bool)
 
   base_model = neumf_model.construct_model(user_input, item_input, params)
 
   logits = base_model.output
 
-  zeros = tf.keras.layers.Lambda(
+  zeros = tf.compat.v1.keras.layers.Lambda(
       lambda x: x * 0)(logits)
 
-  softmax_logits = tf.keras.layers.concatenate(
+  softmax_logits = tf.compat.v1.keras.layers.concatenate(
       [zeros, logits],
       axis=-1)
 
@@ -184,7 +184,7 @@ def _get_keras_model(params):
     softmax_logits = LossLayer(batch_size)(
         [softmax_logits, label_input, valid_pt_mask_input])
 
-  keras_model = tf.keras.Model(
+  keras_model = tf.compat.v1.keras.Model(
       inputs={
           movielens.USER_COLUMN: user_input,
           movielens.ITEM_COLUMN: item_input,
@@ -263,7 +263,7 @@ def run_ncf(_):
 
     with distribution_utils.get_strategy_scope(strategy):
       keras_model = _get_keras_model(params)
-      optimizer = tf.keras.optimizers.Adam(
+      optimizer = tf.compat.v1.keras.optimizers.Adam(
           learning_rate=params["learning_rate"],
           beta_1=params["beta1"],
           beta_2=params["beta2"],
@@ -360,7 +360,7 @@ def run_ncf_custom_training(params,
   Returns:
     A tuple of train loss and a list of training and evaluation results.
   """
-  loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
+  loss_object = tf.compat.v1.keras.losses.SparseCategoricalCrossentropy(
       reduction="sum", from_logits=True)
   train_input_iterator = iter(
       strategy.experimental_distribute_dataset(train_input_dataset))

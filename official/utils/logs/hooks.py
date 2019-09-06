@@ -25,7 +25,7 @@ import tensorflow as tf  # pylint: disable=g-bad-import-order
 from official.utils.logs import logger
 
 
-class ExamplesPerSecondHook(tf.estimator.SessionRunHook):
+class ExamplesPerSecondHook:
   """Hook to print out examples per second.
 
   Total time is tracked and then divided by the total number of steps
@@ -60,14 +60,15 @@ class ExamplesPerSecondHook(tf.estimator.SessionRunHook):
       both are set.
     """
 
+    raise ValueError("ExamplesPerSecondHook not ported to TF 2.x")
     if (every_n_steps is None) == (every_n_secs is None):
       raise ValueError("exactly one of every_n_steps"
                        " and every_n_secs should be provided.")
 
     self._logger = metric_logger or logger.BaseBenchmarkLogger()
 
-    self._timer = tf.estimator.SecondOrStepTimer(
-        every_steps=every_n_steps, every_secs=every_n_secs)
+#    self._timer = tf.estimator.SecondOrStepTimer(
+#        every_steps=every_n_steps, every_secs=every_n_secs)
 
     self._step_train_time = 0
     self._total_steps = 0
@@ -92,7 +93,7 @@ class ExamplesPerSecondHook(tf.estimator.SessionRunHook):
     Returns:
       A SessionRunArgs object or None if never triggered.
     """
-    return tf.estimator.SessionRunArgs(self._global_step_tensor)
+    return None #tf.estimator.SessionRunArgs(self._global_step_tensor)
 
   def after_run(self, run_context, run_values):  # pylint: disable=unused-argument
     """Called after each call to run().

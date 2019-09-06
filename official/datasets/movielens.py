@@ -37,9 +37,6 @@ from absl import logging
 import tensorflow as tf
 # pylint: enable=g-bad-import-order
 
-from official.utils.flags import core as flags_core
-
-
 ML_1M = "ml-1m"
 ML_20M = "ml-20m"
 DATASETS = [ML_1M, ML_20M]
@@ -288,13 +285,12 @@ def define_data_download_flags():
   """Add flags specifying data download arguments."""
   flags.DEFINE_string(
       name="data_dir", default="/tmp/movielens-data/",
-      help=flags_core.help_wrap(
-          "Directory to download and extract data."))
+      help="Directory to download and extract data.")
 
   flags.DEFINE_enum(
       name="dataset", default=None,
       enum_values=DATASETS, case_sensitive=False,
-      help=flags_core.help_wrap("Dataset to be trained and evaluated."))
+      help="Dataset to be trained and evaluated.")
 
 
 def main(_):
